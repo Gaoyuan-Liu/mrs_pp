@@ -57,7 +57,7 @@ class Utils:
         div = np.dot(v2, v3)
 
         if div == 0:
-            return False
+            return False, Node([0,0])
 
         t1 = np.linalg.norm(np.cross(v2, v1)) / div
         t2 = np.dot(v1, v3) / div
@@ -67,9 +67,9 @@ class Utils:
             dist_obs = self.get_dist(start, shot)
             dist_seg = self.get_dist(start, end)
             if dist_obs <= dist_seg:
-                return True
+                return True, shot
 
-        return False
+        return False, Node([0,0])
 
     def is_intersect_circle(self, o, d, a, r):
         d2 = np.dot(d, d)

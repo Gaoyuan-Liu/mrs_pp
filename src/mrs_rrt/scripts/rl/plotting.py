@@ -92,7 +92,9 @@ class Plotting:
     def plot_visited(nodelist, animation):
         if animation:
             count = 0
+            
             for node in nodelist:
+                
                 count += 1
                 if node.parent:
                     plt.plot([node.parent.x, node.x], [node.parent.y, node.y], "-g")

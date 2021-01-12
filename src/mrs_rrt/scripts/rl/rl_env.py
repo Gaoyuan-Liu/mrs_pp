@@ -54,6 +54,8 @@ class PathPlanningEnv(gym.Env):
         #self.episode_ = 0
 
         self.path = [self.start_position]
+        self.nodelist = [Node(self.start_position)]
+        self.reached_godal = False
 
     def reset(self):
         self.current_position = self.start_position
@@ -63,16 +65,23 @@ class PathPlanningEnv(gym.Env):
         self.current_position = self.start_position
         self.episode_count += 1
 
+        if self.reached_godal == False:
+            self.path = []
+
         plt.close()
-        self.plotter.animation([], self.path, "n_episode" + str(self.episode_count), True)
+        self.plotter.animation(self.nodelist, self.path, "n_episode" + str(self.episode_count), True)
         plt.pause(0.5)
         
         self.path = [self.start_position]
+        self.nodelist = [Node(self.start_position)]
         observation = self.current_position
+        self.reached_godal = False
         return observation
         
 
     def step(self, action):
+        wind_noise = np.random.rand(2) * 0.5
+        action = action
 
         current_node = Node(self.current_position)
  
@@ -91,9 +100,13 @@ class PathPlanningEnv(gym.Env):
         reward = reward_os + reward_dis
 
         state = self.current_position
+        node = Node(state)
+        node.parent = Node(self.prev_state)
         
         self.prev_state = state
         self.path.append(state)
+        
+        self.nodelist.append(node)
         #self.plotter.animation([], self.path, "PPO", True)
 
         self.step_count += 1
@@ -101,8 +114,6 @@ class PathPlanningEnv(gym.Env):
         
         if self.step_count >= self.episode_length:
             done = True
-            #self.plotter.animation([], self.path, "PPO", True)
-        print(self.current_position)
         return state, reward, done, {}
 
 
@@ -116,6 +127,7 @@ class PathPlanningEnv(gym.Env):
             reward += 5
             done = True
             self.path.append(np.array([4, -4]))
+            self.reached_godal = True
 
         forward = self.distance(self.prev_state, self.goal_position) - self.distance(current_position, self.goal_position)
         if forward <= 0:
@@ -132,6 +144,13 @@ class PathPlanningEnv(gym.Env):
         err = np.subtract(position_1, position_2)
         dist = np.linalg.norm(err)
         return dist
+
+
+    def lidar(self):
+        n_beam = 32
+        radius = 3
+        
+
 
 
 
